@@ -218,7 +218,7 @@ function toggleAutoscroll() {
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
                 clearInterval(scrollInterval); // Hentikan autoscroll di akhir halaman
             }
-        }, 30); // Interval waktu dalam milidetik
+        }, 60); // Interval waktu dalam milidetik
         isAutoscrolling = true;
         btn.innerHTML = '<i class="fas fa-pause"></i> <span>Stop Autoscroll</span>';
     }
