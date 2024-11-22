@@ -165,10 +165,14 @@
                     <i class="fas fa-bookmark"></i>
                     <span>Bookmark</span>
                 </button>
-                <button class="feature-button flex items-center space-x-2 px-4 py-2 rounded-lg border border-green-500 text-green-600">
-                    <i class="fas fa-share"></i>
-                    <span>Share</span>
-                </button>
+                <button 
+    class="feature-button flex items-center space-x-2 px-4 py-2 rounded-lg border border-green-500 text-green-600" 
+    onclick="shareContent()"
+>
+    <i class="fas fa-share"></i>
+    <span>Share</span>
+</button>
+
             </div>
         </div>
 
@@ -228,6 +232,30 @@ document.addEventListener('keydown', (e) => {
         scrollSpeed--; // Kurangi kecepatan
     }
 });
+
+
+    function shareContent() {
+    if (navigator.share) {
+        // Konten yang akan dibagikan
+        const shareData = {
+            title: 'Al-Quran Digital',
+            text: 'Baca Al-Quran Digital dengan fitur lengkap dan nyaman!',
+            url: window.location.href // URL saat ini
+        };
+
+        // Panggil Web Share API
+        navigator.share(shareData)
+            .then(() => {
+                console.log('Share berhasil!');
+            })
+            .catch((error) => {
+                console.error('Share gagal:', error);
+            });
+    } else {
+        // Browser tidak mendukung Web Share API
+        alert('Fitur share tidak didukung di perangkat Anda.');
+    }
+}
 
 </script>
 
