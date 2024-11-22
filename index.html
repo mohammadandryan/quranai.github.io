@@ -86,6 +86,14 @@
             background: var(--primary-green);
             border-radius: 4px;
         }
+
+      
+    #autoscrollBtn.active {
+        background-color: var(--primary-green);
+        color: white;
+    }
+
+
     </style>
 </head>
 <body class="bg-gray-50">
@@ -116,13 +124,13 @@
                     <div id="chapterSubtitle" class="text-gray-600 text-lg"></div>
                 </div>
                 
-                <div class="flex items-center gap-4">
+                <div style="max-width: 100%;" class="flex items-center gap-4">
                     <button 
                         id="prevBtn"
                         class="p-3 hover:bg-green-100 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         onclick="previousChapter()"
                     >
-                        <i class="fas fa-chevron-left text-green-600"></i>
+                        <!-- <i class="fas fa-chevron-left text-green-600"></i> -->
                     </button>
                     
                     <select 
@@ -138,7 +146,7 @@
                         class="p-3 hover:bg-green-100 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         onclick="nextChapter()"
                     >
-                        <i class="fas fa-chevron-right text-green-600"></i>
+                        <!-- <i class="fas fa-chevron-right text-green-600"></i> -->
                     </button>
                 </div>
             </div>
@@ -170,10 +178,57 @@
                 <div class="mt-4 text-gray-600 font-medium">Loading verses...</div>
             </div>
         </div>
+        <button 
+    id="autoscrollBtn" 
+    class="mb-5feature-button flex items-center space-x-2 px-4 py-2 rounded-lg border border-green-500 text-green-600"
+    onclick="toggleAutoscroll()"
+>
+    <i class="fas fa-arrow-down"></i>
+    <span>Start Autoscroll</span>
+</button>
+
 
         <!-- Verses Container -->
         <div id="versesContainer" class="space-y-6"></div>
+        
     </div>
+
+<script>
+    let isAutoscrolling = false; // Status autoscroll
+let scrollSpeed = 1; // Kecepatan scroll dalam piksel per frame
+let scrollInterval = null; // Interval untuk autoscroll
+
+// Fungsi untuk memulai dan menghentikan autoscrolling
+function toggleAutoscroll() {
+    const btn = document.getElementById('autoscrollBtn');
+    if (isAutoscrolling) {
+        // Hentikan autoscrolling
+        clearInterval(scrollInterval);
+        isAutoscrolling = false;
+        btn.innerHTML = '<i class="fas fa-arrow-down"></i> <span>Start Autoscroll</span>';
+    } else {
+        // Mulai autoscrolling
+        scrollInterval = setInterval(() => {
+            window.scrollBy(0, scrollSpeed); // Scroll ke bawah sejumlah piksel
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                clearInterval(scrollInterval); // Hentikan autoscroll di akhir halaman
+            }
+        }, 30); // Interval waktu dalam milidetik
+        isAutoscrolling = true;
+        btn.innerHTML = '<i class="fas fa-pause"></i> <span>Stop Autoscroll</span>';
+    }
+}
+
+// Tambahkan event listener untuk menyesuaikan kecepatan scroll
+document.addEventListener('keydown', (e) => {
+    if (e.key === '+' && scrollSpeed < 10) {
+        scrollSpeed++; // Tambahkan kecepatan
+    } else if (e.key === '-' && scrollSpeed > 1) {
+        scrollSpeed--; // Kurangi kecepatan
+    }
+});
+
+</script>
 
     <script>
         let currentChapter = 1;
