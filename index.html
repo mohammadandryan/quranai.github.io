@@ -1,39 +1,220 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Al-Quran</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Quran Digital</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        .font-arabic { 
+            font-family: 'Amiri', serif;
+            line-height: 2;
+        }
+        .verse-container:hover {
+            background-color: #f8fafc;
+        }
+        .loading-overlay {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
-  <div class="container mx-auto p-4">
-    <h1 class="text-4xl font-bold text-center mb-6">Al-Quran</h1>
-    <div id="surah-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-  </div>
-  <script>
-    async function fetchSurahs() {
-      try {
-        const response = await axios.get('https://api.quran.com/api/v4/chapters');
-        const surahs = response.data.chapters;
-        const surahList = document.getElementById('surah-list');
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-gray-800">Al-Quran Digital</h1>
+                <div class="text-sm text-gray-600">
+                    <span id="currentInfo"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-        surahs.forEach(surah => {
-          const surahItem = document.createElement('div');
-          surahItem.className = 'p-4 bg-white rounded shadow';
-          surahItem.innerHTML = `
-            <a href="surah.html?surah_id=${surah.id}" class="block text-xl font-semibold mb-2">${surah.name_simple}</a>
-            <p>${surah.name_arabic}</p>
-          `;
-          surahList.appendChild(surahItem);
+    <div class="max-w-4xl mx-auto p-4 mt-16">
+        <!-- Chapter Selection Card -->
+        <div class="bg-white rounded-lg shadow-md mb-6 p-6">
+            <div class="mb-4">
+                <div class="text-center mb-6">
+                    <div id="chapterTitle" class="text-3xl font-arabic mb-2"></div>
+                    <div id="chapterSubtitle" class="text-gray-600"></div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button 
+                        id="prevBtn"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onclick="previousChapter()"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    
+                    <select 
+                        id="chapterSelect"
+                        class="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        onchange="loadVerses()"
+                    >
+                        <option value="">Memuat surah...</option>
+                    </select>
+
+                    <button 
+                        id="nextBtn"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onclick="nextChapter()"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chapter Info -->
+            <div id="chapterInfo" class="text-sm text-gray-600 space-y-1"></div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden fixed inset-0 loading-overlay flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-b-gray-800"></div>
+                <div class="mt-4 text-gray-600">Memuat ayat-ayat...</div>
+            </div>
+        </div>
+
+        <!-- Verses Container -->
+        <div id="versesContainer" class="space-y-4"></div>
+    </div>
+
+    <script>
+        let currentChapter = 1;
+        let chapterData = null;
+        
+        async function fetchChapters() {
+            try {
+                const response = await fetch('https://api.quran.com/api/v4/chapters?language=id');
+                const data = await response.json();
+                chapterData = data.chapters;
+                
+                const select = document.getElementById('chapterSelect');
+                select.innerHTML = chapterData.map(chapter => 
+                    `<option value="${chapter.id}">
+                        ${chapter.id}. ${chapter.name_simple} (${chapter.name_arabic})
+                    </option>`
+                ).join('');
+                
+                select.value = currentChapter;
+                await loadChapterInfo(currentChapter);
+                await loadVerses();
+            } catch (error) {
+                console.error('Error fetching chapters:', error);
+                showError('Gagal memuat daftar surah. Silakan coba lagi.');
+            }
+        }
+
+        async function loadChapterInfo(chapterId) {
+            try {
+                const response = await fetch(`https://api.quran.com/api/v4/chapters/${chapterId}?language=id`);
+                const data = await response.json();
+                const chapter = data.chapter;
+
+                document.getElementById('chapterTitle').textContent = chapter.name_arabic;
+                document.getElementById('chapterSubtitle').textContent = `${chapter.name_simple} • ${chapter.translated_name.name}`;
+                
+                document.getElementById('chapterInfo').innerHTML = `
+                    <p>Diturunkan di ${chapter.revelation_place}</p>
+                    <p>Jumlah ayat: ${chapter.verses_count}</p>
+                    ${chapter.short_description ? `<p class="mt-2">${chapter.short_description}</p>` : ''}
+                `;
+
+                document.getElementById('currentInfo').textContent = 
+                    `Surah ${chapter.name_simple} (${chapter.id}/114)`;
+            } catch (error) {
+                console.error('Error fetching chapter info:', error);
+            }
+        }
+
+        async function loadVerses() {
+            const chapterId = document.getElementById('chapterSelect').value;
+            currentChapter = parseInt(chapterId);
+            
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('versesContainer').innerHTML = '';
+            
+            try {
+                await loadChapterInfo(chapterId);
+                
+                const response = await fetch(
+                    `https://api.quran.com/api/v4/verses/by_chapter/${chapterId}?language=id&words=true&translations=33&fields=text_uthmani,verse_key`
+                );
+                const data = await response.json();
+                
+                const versesHTML = data.verses.map(verse => `
+                    <div class="verse-container bg-white rounded-lg shadow-md overflow-hidden transition-all duration-200">
+                        <div class="p-6">
+                            <div class="text-right mb-6 text-3xl leading-loose font-arabic" dir="rtl">
+                                ${verse.text_uthmani}
+                            </div>
+                            <div class="text-lg mb-4 leading-relaxed text-gray-700">
+                                ${verse.translations[0].text}
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-500">
+                                <span>Ayat ${verse.verse_number}</span>
+                                <span>${verse.verse_key}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('versesContainer').innerHTML = versesHTML;
+                
+                document.getElementById('prevBtn').disabled = currentChapter <= 1;
+                document.getElementById('nextBtn').disabled = currentChapter >= 114;
+                
+                // Scroll to top when loading new chapter
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error fetching verses:', error);
+                showError('Gagal memuat ayat-ayat. Silakan coba lagi.');
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4';
+            errorDiv.innerHTML = message;
+            document.getElementById('versesContainer').prepend(errorDiv);
+        }
+
+        function previousChapter() {
+            if (currentChapter > 1) {
+                currentChapter--;
+                document.getElementById('chapterSelect').value = currentChapter;
+                loadVerses();
+            }
+        }
+
+        function nextChapter() {
+            if (currentChapter < 114) {
+                currentChapter++;
+                document.getElementById('chapterSelect').value = currentChapter;
+                loadVerses();
+            }
+        }
+
+        // Handle keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') previousChapter();
+            if (e.key === 'ArrowRight') nextChapter();
         });
-      } catch (error) {
-        console.error('Error fetching surahs:', error);
-      }
-    }
 
-    document.addEventListener('DOMContentLoaded', fetchSurahs);
-  </script>
+        // Initialize the app
+        fetchChapters();
+    </script>
 </body>
 </html>
