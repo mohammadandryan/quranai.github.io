@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Al-Quran</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-4">
+    <h1 class="text-4xl font-bold text-center mb-6">Al-Quran</h1>
+    <div id="surah-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
+  <script>
+    async function fetchSurahs() {
+      try {
+        const response = await axios.get('https://api.quran.com/api/v4/chapters');
+        const surahs = response.data.chapters;
+        const surahList = document.getElementById('surah-list');
+
+        surahs.forEach(surah => {
+          const surahItem = document.createElement('div');
+          surahItem.className = 'p-4 bg-white rounded shadow';
+          surahItem.innerHTML = `
+            <a href="surah.html?surah_id=${surah.id}" class="block text-xl font-semibold mb-2">${surah.name_simple}</a>
+            <p>${surah.name_arabic}</p>
+          `;
+          surahList.appendChild(surahItem);
+        });
+      } catch (error) {
+        console.error('Error fetching surahs:', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchSurahs);
+  </script>
+</body>
+</html>
