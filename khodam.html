@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zodiac Destiny Checker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #1e40af, 0 0 10px #1e40af, 0 0 15px #1e40af; }
+            100% { box-shadow: 0 0 10px #1e40af, 0 0 20px #1e40af, 0 0 30px #1e40af; }
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: rgba(30, 64, 175, 0.5); }
+            50% { border-color: rgba(30, 64, 175, 1); }
+            100% { border-color: rgba(30, 64, 175, 0.5); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .pulse-border {
+            animation: pulse-border 2s infinite;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .zodiac-image {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 4px solid #1e40af;
+        }
+
+        .glass-effect {
+            background: rgba(10, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(30, 64, 175, 0.3);
+        }
+
+        .loading-bar {
+            width: 0%;
+            transition: width 2s ease-in-out;
+        }
+
+        @media (min-width: 768px) {
+            .desktop-layout {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 min-h-screen">
+    <nav class="bg-gray-800">
+        <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+          <div class="relative flex h-16 items-center justify-between">
+            <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+              <!-- Mobile menu button-->
+              <button
+                id="menuButton"
+                type="button"
+                class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                aria-controls="mobile-menu"
+                aria-expanded="false"
+              >
+                <span class="absolute -inset-0.5"></span>
+                <span class="sr-only">Open main menu</span>
+                <!--
+                    Icon when menu is closed.
+        
+                    Menu open: "hidden", Menu closed: "block"
+                  -->
+                <svg
+                  id="menu-icon"
+                  class="block h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                </svg>
+                <!--
+                    Icon when menu is open.
+        
+                    Menu open: "block", Menu closed: "hidden"
+                  -->
+                <svg
+                  id="close-icon"
+                  class="hidden h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start"
+            >
+              <div class="flex flex-shrink-0 items-center">
+                <img class="h-8 w-auto" src="logoj.png" alt="Your Company" />
+              </div>
+              <div class="hidden sm:ml-6 sm:block">
+                <div class="flex space-x-4">
+                  <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                  <a
+                    href="https://javaverse.vercel.app/"
+                    class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+                    aria-current="page"
+                    >Home</a
+                  >
+                  <a
+                    href="https://artikel.rumah123.com/cari-tahu-kecocokan-kamu-dan-dia-lewat-weton-jawa-untuk-jodoh-percintaan-61312"
+                    class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >Reference</a
+                  >
+                  <a
+                    href="https://www.tiktok.com/@mohammadandryan?_t=8mq0oxJ8DS6&_r=1"
+                    class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >Contribute</a
+                  >
+                  <a
+                    href="./store.html"
+                    class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >Store</a
+                  >
+                  <a
+                    href="./scan.html"
+                    class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >Scan</a
+                  >
+                  <a
+                    href="./qr.html"
+                    class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >Make QR</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+            >
+              <!-- <button type="button" class="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                  <span class="absolute -inset-1.5"></span>
+                  <span class="sr-only">View notifications</span>
+                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                  </svg>
+                </button> -->
+  
+              <!-- Profile dropdown -->
+              <div class="relative ml-3">
+                <div>
+                  <!-- <button type="button" class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                      <span class="absolute -inset-1.5"></span>
+                      <span class="sr-only">Open user menu</span>
+                      <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                    </button> -->
+                </div>
+  
+                <!--
+                    Dropdown menu, show/hide based on menu state.
+        
+                    Entering: "transition ease-out duration-100"
+                      From: "transform opacity-0 scale-95"
+                      To: "transform opacity-100 scale-100"
+                    Leaving: "transition ease-in duration-75"
+                      From: "transform opacity-100 scale-100"
+                      To: "transform opacity-0 scale-95"
+                  -->
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="hidden" id="mobile-menu">
+          <div class="space-y-1 px-2 pb-3 pt-2">
+            <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+            <a
+              href="https://javaverse.vercel.app/"
+              class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
+              aria-current="page"
+              >Home</a
+            >
+            <a
+              href="https://artikel.rumah123.com/cari-tahu-kecocokan-kamu-dan-dia-lewat-weton-jawa-untuk-jodoh-percintaan-61312"
+              class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >Reference</a
+            >
+            <a
+              href="https://tatrck.com/h/0Hu30uVO0x7R?url=https%3A%2F%2Fwww.tiktok.com%2F%40mohammadandryan%3F_t%3D8mq0oxJ8DS6%26_r%3D1"
+              class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >Contribute</a
+            >
+            <a
+              href="./store.html"
+              class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >Store</a
+            >
+            <a
+              href="./scan.html"
+              class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >Scan</a
+            >
+            <a
+              href="./qr.html"
+              class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >Make QR</a
+            >
+            
+          </div>
+        </div>
+      </nav>
+    <div id="particles-js"></div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8 relative z-10">
+        <!-- Initial Form -->
+        <div id="initialForm" class="max-w-xl mx-auto glass-effect rounded-2xl p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <h1 class="text-5xl font-bold text-blue-100 mb-4 floating">Zodiac Destiny</h1>
+                <p class="text-blue-200">Discover Your Celestial Power</p>
+            </div>
+            <form id="zodiacForm" class="space-y-6">
+                <div>
+                    <label class="block text-blue-100 text-lg mb-2">Summoner Name</label>
+                    <input type="text" id="name" required
+                        class="w-full px-4 py-3 rounded-xl bg-blue-950/50 border-2 border-blue-800 text-blue-100 placeholder-blue-400/50 focus:outline-none focus:border-blue-500 transition-all duration-300"
+                        placeholder="Enter your name">
+                </div>
+                <div>
+                    <label class="block text-blue-100 text-lg mb-2">Birth Date</label>
+                    <input type="date" id="birthdate" required
+                        class="w-full px-4 py-3 rounded-xl bg-blue-950/50 border-2 border-blue-800 text-blue-100 focus:outline-none focus:border-blue-500 transition-all duration-300">
+                </div>
+                <button type="submit"
+                    class="w-full py-4 px-6 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold transition duration-300 ease-in-out transform hover:scale-105 glow-effect text-lg">
+                    REVEAL YOUR DESTINY
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="hidden max-w-xl mx-auto text-center">
+            <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+                <div class="floating text-6xl mb-6">🌟</div>
+                <h2 class="text-3xl font-bold text-blue-100 mb-6">Connecting to the Stars...</h2>
+                <div class="relative pt-1">
+                    <div class="overflow-hidden h-6 mb-4 text-xs flex rounded-xl bg-blue-950/50">
+                        <div class="loading-bar rounded-xl bg-blue-600 flex items-center justify-center text-white"></div>
+                    </div>
+                </div>
+                <div class="text-blue-200 text-xl loading-text">Aligning celestial forces...</div>
+            </div>
+        </div>
+
+        <!-- Result Card -->
+        <div id="resultCard" class="hidden max-w-4xl mx-auto">
+            <div class="glass-effect rounded-2xl p-8 shadow-2xl transform transition-all duration-500">
+                <div class="lg:desktop-layout">
+                    <!-- Left Column -->
+                    <div class="text-center mb-8 lg:mb-0">
+                        <div class="zodiac-image pulse-border mb-6"></div>
+                        <h2 class="text-4xl font-bold text-blue-100 mb-2 zodiac-sign"></h2>
+                        <p class="text-2xl text-blue-200 mb-4 player-name"></p>
+                        <div class="power-level text-3xl text-blue-100 mb-4"></div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <div class="bg-blue-950/50 rounded-xl p-6 border border-blue-800/50">
+                            <h3 class="text-xl font-bold text-blue-100 mb-4">Celestial Element</h3>
+                            <div class="text-3xl element text-blue-200"></div>
+                        </div>
+                        <div class="bg-blue-950/50 rounded-xl p-6 border border-blue-800/50">
+                            <h3 class="text-xl font-bold text-blue-100 mb-4">Special Abilities</h3>
+                            <ul class="abilities space-y-3 text-blue-200"></ul>
+                        </div>
+                        <div class="bg-blue-950/50 rounded-xl p-6 border border-blue-800/50">
+                            <h3 class="text-xl font-bold text-blue-100 mb-4">Destiny Quote</h3>
+                            <p class="destiny-quote text-blue-200 italic"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-8">
+                    <button onclick="resetForm()" 
+                        class="py-3 px-8 bg-blue-700 text-white rounded-xl hover:bg-blue-600 transition duration-300 font-bold">
+                        Check Another Destiny
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize particles.js with dark blue theme
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 100 },
+                color: { value: '#93c5fd' },
+                shape: { type: 'circle' },
+                opacity: { 
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: { 
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                move: {
+                    enable: true,
+                    speed: 1.5,
+                    direction: 'none',
+                    random: true,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                }
+            }
+        });
+
+        // Enhanced zodiac data with images and quotes
+        const zodiacData = {
+            Aries: {
+                emoji: '♈',
+                element: '🔥 Fire',
+                abilities: ['Berserker Rage', 'Swift Strike', 'Battle Command'],
+                image: '/api/placeholder/300/300',
+                quote: "Born to lead, destined to conquer. Your fierce spirit ignites the path to victory."
+            },
+            Taurus: {
+                emoji: '♉',
+                element: '🌍 Earth',
+                abilities: ['Iron Defense', 'Ground Slam', 'Nature\'s Fury'],
+                image: '/api/placeholder/300/300',
+                quote: "Unwavering strength, unbreakable will. Your determination moves mountains."
+            },
+            Gemini: {
+                emoji: '♊',
+                element: '💨 Air',
+                abilities: ['Twin Force', 'Mirror Image', 'Dual Strike'],
+                image: '/api/placeholder/300/300',
+                quote: "Two minds, one destiny. Your adaptability knows no bounds."
+            },
+            Cancer: {
+                emoji: '♋',
+                element: '💧 Water',
+                abilities: ['Healing Wave', 'Shell Shield', 'Tidal Force'],
+                image: '/api/placeholder/300/300',
+                quote: "Guardian of emotions, master of intuition. Your care nurtures victory."
+            },
+            Leo: {
+                emoji: '♌',
+                element: '🔥 Fire',
+                abilities: ['Royal Roar', 'Pride Leader', 'Solar Power'],
+                image: '/api/placeholder/300/300',
+                quote: "Born to shine, destined to rule. Your radiance lights the way to glory."
+            },
+            Virgo: {
+                emoji: '♍',
+                element: '🌍 Earth',
+                abilities: ['Perfect Analysis', 'Nature\'s Blessing', 'Purification'],
+                image: '/api/placeholder/300/300',
+                quote: "Precision in chaos, perfection in action. Your wisdom guides the way."
+            },
+            Libra: {
+                emoji: '♎',
+                element: '💨 Air',
+                abilities: ['Balance Strike', 'Justice Shield', 'Harmony Flow'],
+                image: '/api/placeholder/300/300',
+                quote: "Balance in battle, harmony in victory. Your judgment brings peace."
+            },
+            Scorpio: {
+                emoji: '♏',
+                element: '💧 Water',
+                abilities: ['Venomous Strike', 'Shadow Stealth', 'Death Grip'],
+                image: '/api/placeholder/300/300',
+                quote: "Master of mysteries, wielder of power. Your intensity transforms reality."
+            },
+            Sagittarius: {
+                emoji: '♐',
+                element: '🔥 Fire',
+                abilities: ['Precise Shot', 'Explorer\'s Luck', 'Freedom Rush'],
+                image: '/api/placeholder/300/300',
+                quote: "Seeker of truth, archer of destiny. Your aim never falters."
+            },
+            Capricorn: {
+                emoji: '♑',
+                element: '🌍 Earth',
+                abilities: ['Mountain Force', 'Ambition Drive', 'Time Master'],
+                image: '/api/placeholder/300/300',
+                quote: "Climber of peaks, master of fate. Your ambition knows no limits."
+            },
+            Aquarius: {
+                emoji: '♒',
+                element: '💨 Air',
+                abilities: ['Innovation Blast', 'Future Sight', 'Rebel Spirit'],
+                image: '/api/placeholder/300/300',
+                quote: "Visionary of tomorrow, rebel of today. Your innovation shapes the future."
+            },
+            Pisces: {
+                emoji: '♓',
+                element: '💧 Water',
+                abilities: ['Dream Weaver', 'Mystic Current', 'Soul Connection'],
+                image: '/api/placeholder/300/300',
+                quote: "Dreamer of depths, mystic of the seas. Your imagination creates reality."
+            }
+        };
+
+        function getZodiacSign(date) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+
+            if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return 'Aries';
+            if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return 'Taurus';
+            if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return 'Gemini';
+            if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return 'Cancer';
+            if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return 'Leo';
+            if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return 'Virgo';
+            if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return 'Libra';
+            if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return 'Scorpio';
+            if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return 'Sagittarius';
+            if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return 'Capricorn';
+            if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return 'Aquarius';
+            return 'Pisces';
+        }
+
+        const loadingTexts = [
+            "Aligning celestial forces... ⚡",
+            "Calculating cosmic power... 🌟",
+            "Channeling zodiac energy... ✨",
+            "Reading star patterns... 🌠",
+            "Discovering your destiny... 🔮"
+        ];
+
+
+        let currentLoadingText = 0;
+        function updateLoadingText() {
+            const loadingTextElement = document.querySelector('.loading-text');
+            loadingTextElement.textContent = loadingTexts[currentLoadingText];
+            currentLoadingText = (currentLoadingText + 1) % loadingTexts.length;
+        }
+
+        document.getElementById('zodiacForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const birthdate = new Date(document.getElementById('birthdate').value);
+            
+            // Hide form, show loading
+            document.getElementById('initialForm').classList.add('hidden');
+            document.getElementById('loadingScreen').classList.remove('hidden');
+
+            // Start loading animation
+            const loadingBar = document.querySelector('.loading-bar');
+            loadingBar.style.width = '0%';
+            setTimeout(() => loadingBar.style.width = '100%', 100);
+
+            // Update loading text
+            const loadingInterval = setInterval(updateLoadingText, 800);
+
+            // Process zodiac data
+            setTimeout(() => {
+                clearInterval(loadingInterval);
+                const zodiacSign = getZodiacSign(birthdate);
+                const zodiacInfo = zodiacData[zodiacSign];
+
+                // Update result card
+                document.querySelector('.zodiac-sign').textContent = `${zodiacSign} ${zodiacInfo.emoji}`;
+                document.querySelector('.player-name').textContent = name;
+                document.querySelector('.element').textContent = zodiacInfo.element;
+                document.querySelector('.power-level').textContent = `💪 ${Math.floor(Math.random() * 20 + 80)}/100`;
+                
+                const abilitiesList = document.querySelector('.abilities');
+                abilitiesList.innerHTML = zodiacInfo.abilities
+                    .map(ability => `<li class="flex items-center gap-2">
+                        <span class="text-indigo-300">⚔️</span> ${ability}
+                    </li>`).join('');
+
+                // Hide loading, show result
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('resultCard').classList.remove('hidden');
+            }, 3000);
+        });
+
+        function resetForm() {
+            document.getElementById('resultCard').classList.add('hidden');
+            document.getElementById('initialForm').classList.remove('hidden');
+            document.getElementById('zodiacForm').reset();
+        }
+    </script>
+</body>
+</html>
